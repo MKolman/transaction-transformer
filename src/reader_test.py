@@ -16,7 +16,7 @@ class TestValidator(unittest.TestCase):
             "place holder",
             True,
         )
-        reader.validate(["date", "in_acc", "place holder"], config)
+        self.assertIsNone(reader.validate(["date", "in_acc", "place holder"], config))
 
     def test_fail(self):
         config = reader.ReadConfig(

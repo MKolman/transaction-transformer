@@ -8,7 +8,9 @@ logger = logging.getLogger(__name__)
 
 def write(store: io.TextIOWrapper, transactions: list[Transaction]):
     logger.info(
-        f"Saving {len(transactions)} transactions into {getattr(store, 'name', 'buffer')}."
+        "Saving {num_transactions} transactions into {storename}.",
+        num_transactions=len(transactions),
+        storename=getattr(store, "name", "buffer"),
     )
     writer = csv.DictWriter(
         store,

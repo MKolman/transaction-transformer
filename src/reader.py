@@ -25,15 +25,17 @@ def validate_and_read(store: io.TextIOWrapper, config: ReadConfig) -> list[Trans
     validate(transaction_data.fieldnames, config)
     transactions = read(transaction_data, config)
     logger.info(
-        f"Read {len(transactions)} transactions from {getattr(store, 'name', 'buffer')}"
+        "Read {num_transactions} transactions from {storename}",
+        num_transactions=len(transactions),
+        storename=getattr(store, "name", "buffer"),
     )
     return transactions
 
 
 def read(data: Iterable[dict[str, str]], config: ReadConfig) -> list[Transaction]:
-    to_amount = lambda a: a
-    if config.amount_abs:
-        to_amount = lambda a: a.lstrip(" -")
+    def to_amount(amount):
+        return amount.lstrip(" -") if config.amount_abs else amount
+
     result = []
     for row in data:
         result.append(
