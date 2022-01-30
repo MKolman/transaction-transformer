@@ -29,7 +29,7 @@ fn str_dist_cached(source: &str, target: &str, cache: &mut Cache) -> usize {
         _ => source.chars().count() + target.chars().count(), // At least one these is zero.
     };
     cache[source.len()][target.len()] = Some(result);
-    return result;
+    result
 }
 
 pub fn score(source: &str, target: &str) -> f64 {

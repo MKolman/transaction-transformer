@@ -4,9 +4,9 @@ use crate::matcher::Candidate;
 pub struct TerminalUI;
 
 impl TerminalUI {
-    fn ask_user_to_pick(account: &str, candidates: &Vec<Candidate>) -> String {
+    fn ask_user_to_pick(account: &str, candidates: &[Candidate]) -> String {
         println!("\n=== {account} ===", account = account);
-        if candidates.len() == 0 {
+        if candidates.is_empty() {
             print!("Enter account: ");
         } else {
             for (i, candidate) in candidates.iter().enumerate() {
@@ -27,7 +27,7 @@ impl TerminalUI {
     }
 }
 impl super::UI for TerminalUI {
-    fn choose_or_create_match(&self, account: &str, candidates: &Vec<Candidate>) -> String {
+    fn choose_or_create_match(&self, account: &str, candidates: &[Candidate]) -> String {
         let value = Self::ask_user_to_pick(account, candidates);
         match value.parse::<usize>() {
             Ok(idx) if 0 < idx && idx <= candidates.len() => {

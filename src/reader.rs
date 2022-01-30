@@ -83,7 +83,7 @@ fn validate<'a>(
     for col in data {
         fields.remove(col);
     }
-    match fields.len() > 0 {
+    match !fields.is_empty() {
         true => Err(ReaderError::MissingColumn(fields)),
         false => Ok(()),
     }

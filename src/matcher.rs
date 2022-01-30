@@ -52,7 +52,7 @@ impl AccountMatcher {
                 .deserialize()
                 .collect::<Result<Vec<(String, String)>, csv::Error>>()?,
         );
-        return Ok(Self::from(accounts));
+        Ok(Self::from(accounts))
     }
     pub fn from(accounts: HashMap<String, String>) -> Self {
         Self { accounts }
@@ -79,6 +79,6 @@ impl AccountMatcher {
             _ => ui.choose_or_create_match(account, &candidates),
         };
         self.accounts.insert(account.to_owned(), result.clone());
-        return result;
+        result
     }
 }
