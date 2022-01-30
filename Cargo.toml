@@ -1,0 +1,22 @@
+[package]
+name = "transaction_transformer"
+version = "0.1.0"
+edition = "2021"
+author = "Maks Kolman"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "3.0.13", features = ["derive"] }
+csv = "1.1.6"
+log = "0.4.14"
+serde = { version = "1.0.136", features = ["derive"] }
+simple_logger = "2.1.0"
+
+[lib]
+name = "transform"
+path = "src/lib.rs"
+
+[[bin]]
+name = "transaction_transformer_bin"
+path = "src/bin/terminal.rs"
