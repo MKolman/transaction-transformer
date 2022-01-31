@@ -1,3 +1,5 @@
+![Build, test and lint](https://github.com/MKolman/transaction-transformer/actions/workflows/build.yml/badge.svg)
+
 # Transaction transformer
 
 This repository contains a script that can be used to transform
