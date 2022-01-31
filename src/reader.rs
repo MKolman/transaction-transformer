@@ -11,21 +11,30 @@ pub struct ReadConfig {
 }
 
 #[derive(Debug)]
-pub enum ReaderError {
+pub enum ReadError {
     MissingColumn(HashSet<String>),
     Format(csv::ErrorKind),
 }
 
-impl From<csv::Error> for ReaderError {
-    fn from(err: csv::Error) -> ReaderError {
-        ReaderError::Format(err.into_kind())
+impl From<csv::Error> for ReadError {
+    fn from(err: csv::Error) -> Self {
+        Self::Format(err.into_kind())
+    }
+}
+
+impl PartialEq for ReadError {
+    fn eq(&self, other: &Self) -> bool {
+        matches!(
+            (self, other),
+            (ReadError::MissingColumn(a), ReadError::MissingColumn(b)) if a == b
+        )
     }
 }
 
 pub fn validate_and_read(
     store: impl std::io::Read,
     config: &ReadConfig,
-) -> Result<Vec<Transaction>, ReaderError> {
+) -> Result<Vec<Transaction>, ReadError> {
     let mut reader = csv::Reader::from_reader(store);
     validate(reader.headers()?.into_iter(), config)?;
     let transactions = read(&mut reader, config)?;
@@ -42,7 +51,7 @@ type Row = HashMap<String, String>;
 fn read<R: std::io::Read>(
     reader: &mut csv::Reader<R>,
     config: &ReadConfig,
-) -> Result<Vec<Transaction>, ReaderError> {
+) -> Result<Vec<Transaction>, ReadError> {
     let join = |fields: &Vec<String>, row: &Row| {
         fields
             .iter()
@@ -50,9 +59,10 @@ fn read<R: std::io::Read>(
             .collect::<Vec<String>>()
             .join(" | ")
     };
-    let to_amount = match config.amount_abs {
-        true => |amount: String| amount.trim_start_matches(&['-', ' '] as &[_]).to_owned(),
-        false => |amount: String| amount,
+    let to_amount = if config.amount_abs {
+        |amount: String| amount.trim_start_matches(&['-', ' '] as &[_]).to_owned()
+    } else {
+        |amount: String| amount
     };
     let mut transactions = Vec::new();
     for result in reader.deserialize() {
@@ -64,15 +74,12 @@ fn read<R: std::io::Read>(
             description: join(&config.description_fields, &row),
             debit: to_amount(row[&config.debit_field].clone()),
             credit: to_amount(row[&config.credit_field].clone()),
-        })
+        });
     }
     Ok(transactions)
 }
 
-fn validate<'a>(
-    data: impl Iterator<Item = &'a str>,
-    config: &ReadConfig,
-) -> Result<(), ReaderError> {
+fn validate<'a>(data: impl Iterator<Item = &'a str>, config: &ReadConfig) -> Result<(), ReadError> {
     let mut fields = HashSet::new();
     fields.insert(config.date_field.clone());
     fields.extend(config.debtor_fields.iter().cloned());
@@ -83,9 +90,10 @@ fn validate<'a>(
     for col in data {
         fields.remove(col);
     }
-    match !fields.is_empty() {
-        true => Err(ReaderError::MissingColumn(fields)),
-        false => Ok(()),
+    if fields.is_empty() {
+        Ok(())
+    } else {
+        Err(ReadError::MissingColumn(fields))
     }
 }
 
@@ -117,18 +125,11 @@ mod tests {
             credit_field: "credit".into(),
             amount_abs: true,
         };
-        match validate([].into_iter(), &config) {
-            Err(ReaderError::MissingColumn(missing)) => {
-                assert_eq!(
-                    missing,
-                    HashSet::from(
-                        ["date", "in_acc", "out acc", "desc", "debit", "credit"]
-                            .map(|s| s.to_owned())
-                    )
-                )
-            }
-            _ => assert!(false, ""),
-        }
+        let got = validate([].into_iter(), &config);
+        let want = Err(ReadError::MissingColumn(HashSet::from(
+            ["date", "in_acc", "out acc", "desc", "debit", "credit"].map(String::from),
+        )));
+        assert_eq!(got, want);
     }
 
     #[test]
@@ -142,8 +143,8 @@ mod tests {
             credit_field: "5".into(),
             amount_abs: true,
         };
-        let store = "1,2,3,4,5".as_bytes();
-        let result = validate_and_read(store, &config);
+        let store = b"1,2,3,4,5";
+        let result = validate_and_read(&store[..], &config);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), Vec::new());
     }
@@ -158,8 +159,8 @@ mod tests {
             credit_field: "5".into(),
             amount_abs: true,
         };
-        let store = "1,2,3,4,5\na,b,c,d,e\nx,y,z,w,-q".as_bytes();
-        let result = validate_and_read(store, &config);
+        let store = b"1,2,3,4,5\na,b,c,d,e\nx,y,z,w,-q";
+        let result = validate_and_read(&store[..], &config);
         assert!(result.is_ok());
         let want = vec![
             Transaction {

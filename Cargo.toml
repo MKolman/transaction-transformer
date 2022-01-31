@@ -3,6 +3,11 @@ name = "transaction_transformer"
 version = "0.1.0"
 edition = "2021"
 author = "Maks Kolman"
+description = "Library with functions that can be used to transform transactions into a format taht GNUCash understands."
+license-file = "LICENSE"
+repository = "https://github.com/mkolman/transaction_transformer"
+keywords = ["transactions", "finance", "GNUCash"]
+categories = ["command-line-utilities", "parsing"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

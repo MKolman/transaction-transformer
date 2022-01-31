@@ -73,7 +73,7 @@ fn main() {
         None => matcher::AccountMatcher::new(),
         Some(filename) => matcher::AccountMatcher::from_path(&filename).unwrap(),
     };
-    let ui = ui::terminal::TerminalUI {};
+    let ui = ui::terminal::UI {};
     for transaction in transactions.iter_mut() {
         transaction.debtor_account = transformer.find_match(&transaction.debtor_account, &ui);
         transaction.creditor_account = transformer.find_match(&transaction.creditor_account, &ui);

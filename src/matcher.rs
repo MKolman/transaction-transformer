@@ -1,3 +1,5 @@
+#![allow(clippy::module_name_repetitions)]
+
 mod score;
 #[cfg(test)]
 mod tests;
@@ -40,6 +42,7 @@ pub struct AccountMatcher {
 }
 
 impl AccountMatcher {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             accounts: HashMap::new(),
@@ -54,7 +57,8 @@ impl AccountMatcher {
         );
         Ok(Self::from(accounts))
     }
-    pub fn from(accounts: HashMap<String, String>) -> Self {
+    #[must_use]
+    const fn from(accounts: HashMap<String, String>) -> Self {
         Self { accounts }
     }
     pub fn find_match(&mut self, account: &str, ui: &impl UI) -> String {

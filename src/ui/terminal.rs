@@ -1,9 +1,9 @@
 use std::io::Write;
 
 use crate::matcher::Candidate;
-pub struct TerminalUI;
+pub struct UI;
 
-impl TerminalUI {
+impl UI {
     fn ask_user_to_pick(account: &str, candidates: &[Candidate]) -> String {
         println!("\n=== {account} ===", account = account);
         if candidates.is_empty() {
@@ -26,7 +26,7 @@ impl TerminalUI {
         buffer.trim_end().to_owned()
     }
 }
-impl super::UI for TerminalUI {
+impl super::UI for UI {
     fn choose_or_create_match(&self, account: &str, candidates: &[Candidate]) -> String {
         let value = Self::ask_user_to_pick(account, candidates);
         match value.parse::<usize>() {

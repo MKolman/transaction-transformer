@@ -32,12 +32,13 @@ fn str_dist_cached(source: &str, target: &str, cache: &mut Cache) -> usize {
     result
 }
 
+#[allow(clippy::cast_precision_loss)]
 pub fn score(source: &str, target: &str) -> f64 {
     let dist = str_dist(source, target) as f64;
     let len = *[source.chars().count(), target.chars().count(), 1]
         .iter()
         .max()
-        .unwrap() as f64;
+        .expect("We know that the array has 3 elements.") as f64;
     1.0 - dist / len
 }
 
@@ -47,7 +48,7 @@ mod tests {
 
     #[test]
     fn test_empty() {
-        assert_eq!(str_dist("", ""), 0)
+        assert_eq!(str_dist("", ""), 0);
     }
     #[test]
     fn test_equal() {
@@ -72,9 +73,10 @@ mod tests {
     }
     #[test]
     fn test_unicode() {
-        assert_eq!(str_dist("💩💩💩💩", "poop💩"), 4);
-        assert_eq!(str_dist("💩", ""), 1);
-        assert_eq!(str_dist("", "💩"), 1);
+        let poop = "\u{1f4a9}".to_owned(); // Poop emoji
+        assert_eq!(str_dist(&poop.repeat(4), &("poop".to_owned() + &poop)), 4);
+        assert_eq!(str_dist(&poop, ""), 1);
+        assert_eq!(str_dist("", &poop), 1);
     }
     #[test]
     fn test_long() {
