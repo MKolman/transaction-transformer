@@ -1,4 +1,4 @@
-![Build, test and lint](https://github.com/MKolman/transaction-transformer/actions/workflows/build.yml/badge.svg)
+[![Build, test and lint](https://github.com/MKolman/transaction-transformer/actions/workflows/build.yml/badge.svg)](https://github.com/MKolman/transaction-transformer/actions/workflows/build.yml)
 
 # Transaction transformer
 
