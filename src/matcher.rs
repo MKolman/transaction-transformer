@@ -1,4 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
+use wasm_bindgen::prelude::*;
 
 mod score;
 #[cfg(test)]
@@ -8,8 +9,9 @@ use crate::ui::UI;
 use log::info;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::io::{Read, Write};
 
-#[derive(Debug, PartialEq, PartialOrd)]
+#[derive(Debug, PartialEq, PartialOrd, Serialize)]
 pub struct Candidate<'a> {
     pub score: f64,
     pub similar_to: &'a String,
@@ -36,6 +38,7 @@ impl<'a> Ord for Candidate<'a> {
     }
 }
 
+#[wasm_bindgen]
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct AccountMatcher {
     accounts: HashMap<String, String>,
@@ -48,8 +51,8 @@ impl AccountMatcher {
             accounts: HashMap::new(),
         }
     }
-    pub fn from_path(path: &str) -> Result<Self, csv::Error> {
-        let mut reader = csv::Reader::from_path(path)?;
+    pub fn from_reader(store: impl Read) -> Result<Self, csv::Error> {
+        let mut reader = csv::Reader::from_reader(store);
         let accounts: HashMap<String, String> = HashMap::from_iter(
             reader
                 .deserialize()
@@ -84,5 +87,21 @@ impl AccountMatcher {
         };
         self.accounts.insert(account.to_owned(), result.clone());
         result
+    }
+    pub fn to_writer(&self, writer: &mut impl Write) -> Result<(), csv::Error> {
+        let mut writer = csv::Writer::from_writer(writer);
+        writer.write_record(["from", "to"].iter())?;
+        for (key, value) in &self.accounts {
+            writer.write_record([key, value].iter())?;
+        }
+        Ok(())
+    }
+    #[must_use]
+    pub fn dump_value(&self) -> String {
+        let mut writer = Vec::new();
+        if let Err(error) = self.to_writer(&mut writer) {
+            return format!("error writing value: {}", error);
+        }
+        String::from_utf8_lossy(&writer).into_owned()
     }
 }

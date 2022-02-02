@@ -17,8 +17,11 @@ csv = "1.1.6"
 log = "0.4.14"
 serde = { version = "1.0.136", features = ["derive"] }
 simple_logger = "2.1.0"
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+js-sys = "0.3.56"
 
 [lib]
+crate-type = ["cdylib", "rlib"]
 name = "transform"
 path = "src/lib.rs"
 

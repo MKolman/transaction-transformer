@@ -1,5 +1,9 @@
-use crate::transaction::Transaction;
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
+
+use crate::transaction::Transaction;
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ReadConfig {
     pub date_field: String,
     pub debtor_fields: Vec<String>,

@@ -71,7 +71,9 @@ fn main() {
         reader::validate_and_read(File::open(&args.infile).unwrap(), &read_config).unwrap();
     let mut transformer = match args.matchfile {
         None => matcher::AccountMatcher::new(),
-        Some(filename) => matcher::AccountMatcher::from_path(&filename).unwrap(),
+        Some(filename) => {
+            matcher::AccountMatcher::from_reader(File::open(&filename).unwrap()).unwrap()
+        }
     };
     let ui = ui::terminal::UI {};
     for transaction in transactions.iter_mut() {
