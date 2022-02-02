@@ -96,6 +96,10 @@ impl AccountMatcher {
         }
         Ok(())
     }
+}
+
+#[wasm_bindgen]
+impl AccountMatcher {
     #[must_use]
     pub fn dump_value(&self) -> String {
         let mut writer = Vec::new();

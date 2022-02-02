@@ -21,3 +21,12 @@ pub fn new_matcher(matcher_data: &JsValue) -> crate::matcher::AccountMatcher {
     let matcher_data = matcher_data.as_string().unwrap();
     crate::matcher::AccountMatcher::from_reader(matcher_data.as_bytes()).unwrap()
 }
+
+#[wasm_bindgen]
+pub fn find_match(
+    matcher: &mut crate::matcher::AccountMatcher,
+    account: &str,
+    callback: js_sys::Function,
+) -> String {
+    matcher.find_match(account, &new_ui(callback))
+}
