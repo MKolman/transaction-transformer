@@ -58,6 +58,10 @@ impl AccountMatcher {
                 .deserialize()
                 .collect::<Result<Vec<(String, String)>, csv::Error>>()?,
         );
+        info!(
+            "Loaded {num_accounts} cached matches from store.",
+            num_accounts = accounts.len(),
+        );
         Ok(Self::from(accounts))
     }
     #[must_use]
@@ -89,6 +93,10 @@ impl AccountMatcher {
         result
     }
     pub fn to_writer(&self, writer: &mut impl Write) -> Result<(), csv::Error> {
+        info!(
+            "Saving {num_accounts} cached matches into store.",
+            num_accounts = self.accounts.len(),
+        );
         let mut writer = csv::Writer::from_writer(writer);
         writer.write_record(["from", "to"].iter())?;
         for (key, value) in &self.accounts {

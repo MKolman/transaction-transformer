@@ -69,7 +69,7 @@ fn main() {
     };
     let mut transactions =
         reader::validate_and_read(File::open(&args.infile).unwrap(), &read_config).unwrap();
-    let mut transformer = match args.matchfile {
+    let mut transformer = match &args.matchfile {
         None => matcher::AccountMatcher::new(),
         Some(filename) => {
             matcher::AccountMatcher::from_reader(File::open(&filename).unwrap()).unwrap()
@@ -81,4 +81,9 @@ fn main() {
         transaction.creditor_account = transformer.find_match(&transaction.creditor_account, &ui);
     }
     writer::write(File::create(&args.outfile).unwrap(), &transactions).unwrap();
+    if let Some(filename) = &args.matchfile {
+        transformer
+            .to_writer(&mut File::create(filename).unwrap())
+            .unwrap();
+    }
 }
